@@ -5,3 +5,6 @@ dist/
 .env
 *.txt
 *.gz
+*.png
+*.jpg
+*.jpeg
