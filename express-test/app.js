@@ -36,7 +36,6 @@ app.use(session({
     },
     // name: 'connect.sid', //default
 }));
-app.use(multer().array());
 
 
 /**
