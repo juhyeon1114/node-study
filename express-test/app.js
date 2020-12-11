@@ -4,8 +4,23 @@ const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
 const multer = require('multer');
+const nunjucks = require('nunjucks');
 
 const app = express();
+/**
+ * pug
+ */
+// app.set('views', path.join(__dirname, 'views'));
+// app.set('view engine', 'pug');
+
+/**
+ * nunjucks
+ */
+app.set('view engine', 'html');
+nunjucks.configure('views', {
+    express: app,
+    watch: true,
+})
 
 /**
  * 미들웨어
