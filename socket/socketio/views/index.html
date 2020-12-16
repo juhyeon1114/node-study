@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GIF 채팅방</title>
+</head>
+
+<!-- socket.io가 넣어주는 js파일 -->
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    // http주소를 적은 이유 : 연결된 직후엔 polling방식으로 데이터 전송함.
+    // socket프로토콜을 지원하는 브라우저라면 자동으로 프로토콜 전환
+    const socket = io.connect('http://localhost:8005', {
+        path: '/socket.io',
+        transports: ['websocket'], // polling방식을 사용안하고, 바로 socket프로토콜을 사용한다는 의미
+    });
+
+    socket.on('news', function (data) {
+        console.log(data);
+        socket.emit('reply', 'hello news');
+    });
+
+    socket.on('hello', function (data) {
+        console.log(data);
+        socket.emit('reply', 'hello hello');
+    });
+
+    socket.on('world', function (data) {
+        console.log(data);
+        socket.emit('reply', 'hello world');
+    });
+</script>
+
+<body>
+    hello    
+</body>
+</html>
