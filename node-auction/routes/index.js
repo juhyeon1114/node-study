@@ -2,8 +2,9 @@ const express = require('express');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const schedule = require('node-schedule');
 
-const { Good, Auction, User } = require('../models');
+const { Good, Auction, User, sequelize } = require('../models');
 const { isLoggedIn, isNotLoggedIn } = require('./middlewares');
 const db = require('../models');
 
@@ -67,6 +68,34 @@ router.post('/good', isLoggedIn, upload.single('img'), async (req, res, next) =>
             name,
             img: req.file.filename,
             price,
+        });
+        const end = new Date();
+        end.setDate(end.getDate() + 1); // 경매 마감시간 = 경매가 열리고 24시간 후
+        schedule.scheduleJob(end, async () => {
+          const t = await sequelize.transaction(); // transaction으로 묶인 것들은 하나라도 실패하면 모두 실패한 것으로 함.
+          try {
+            const success = await Auction.findOne({
+              where: {GoodId: good.id},
+              order: [['bid', 'DESC']],
+              transaction: t,
+            });
+            await Good.update({
+              SoldId: success.UserId
+            }, {
+              where: {id: good.id},
+              transaction: t
+            });
+            await User.update({ // UPDATAE Users SET money = money - 14000 WHERE id = 1;
+              money: sequelize.literal(`money - ${success.bid}`)
+            }, {
+              where: { id: success.UserId },
+              transaction: t
+            });
+            await t.commit();
+          } catch (error) {
+            await t.rollback();
+            console.error(error);
+          }
         });
         res.redirect('/');
     } catch (error) {
